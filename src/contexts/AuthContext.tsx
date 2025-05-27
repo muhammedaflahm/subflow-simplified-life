@@ -1,10 +1,9 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 interface User {
   id: string;
   email: string;
-  isAdmin?: boolean;
   subscriptionTier: 'free' | 'premium';
 }
 
@@ -30,41 +29,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Mock authentication - in real app this would connect to Supabase
   useEffect(() => {
-    const mockUser = localStorage.getItem('mockUser');
-    if (mockUser) {
-      setUser(JSON.parse(mockUser));
-    }
-    setLoading(false);
+    const getUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (data?.user) {
+        const { id, email } = data.user;
+
+        // Fetch subscriptionTier from profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', id)
+          .single();
+
+        setUser({
+          id,
+          email: email ?? '',
+          subscriptionTier: profile?.subscription_tier ?? 'free',
+        });
+      }
+      setLoading(false);
+    };
+
+    getUser();
+    supabase.auth.onAuthStateChange(() => {
+      getUser(); // re-check user on sign-in or sign-out
+    });
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    // Mock sign in
-    const mockUser: User = {
-      id: '1',
-      email,
-      isAdmin: email === 'admin@subsimplify.com',
-      subscriptionTier: 'free'
-    };
-    setUser(mockUser);
-    localStorage.setItem('mockUser', JSON.stringify(mockUser));
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   };
 
   const signUp = async (email: string, password: string) => {
-    // Mock sign up
-    const mockUser: User = {
-      id: Math.random().toString(),
-      email,
-      subscriptionTier: 'free'
-    };
-    setUser(mockUser);
-    localStorage.setItem('mockUser', JSON.stringify(mockUser));
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
   };
 
   const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('mockUser');
   };
 
   return (
