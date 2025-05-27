@@ -62,10 +62,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
-  };
+const signUp = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) throw error;
+  if (data.user) {
+    await supabase.from('profiles').insert([
+      { id: data.user.id, subscription_tier: 'free' }
+    ]);
+  }
+};
+
 
   const signOut = async () => {
     await supabase.auth.signOut();

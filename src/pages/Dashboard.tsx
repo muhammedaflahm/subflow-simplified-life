@@ -21,11 +21,10 @@ export interface Subscription {
 }
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // 🔄 Load subscriptions from Supabase
   useEffect(() => {
     if (!user) return;
     const load = async () => {
@@ -35,13 +34,15 @@ const Dashboard = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) console.error('Error loading subscriptions:', error);
-      else setSubscriptions(data as Subscription[]);
+      if (error) {
+        console.error('Error loading subscriptions:', error);
+      } else {
+        setSubscriptions(data as Subscription[]);
+      }
     };
     load();
   }, [user]);
 
-  // ➕ Add new subscription
   const addSubscription = async (sub: Omit<Subscription, 'id'>) => {
     if (!user) return;
 
@@ -50,11 +51,13 @@ const Dashboard = () => {
       .insert([{ ...sub, user_id: user.id }])
       .select();
 
-    if (error) console.error('Add error:', error);
-    else setSubscriptions(prev => [...prev, data[0]]);
+    if (error) {
+      console.error('Add error:', error);
+    } else {
+      setSubscriptions(prev => [...prev, data[0]]);
+    }
   };
 
-  // ✏️ Update subscription
   const updateSubscription = async (id: string, updates: Partial<Subscription>) => {
     const { data, error } = await supabase
       .from('subscriptions')
@@ -62,21 +65,26 @@ const Dashboard = () => {
       .eq('id', id)
       .select();
 
-    if (error) console.error('Update error:', error);
-    else setSubscriptions(prev =>
-      prev.map(sub => (sub.id === id ? { ...sub, ...updates } : sub))
-    );
+    if (error) {
+      console.error('Update error:', error);
+    } else {
+      setSubscriptions(prev =>
+        prev.map(sub => (sub.id === id ? { ...sub, ...updates } : sub))
+      );
+    }
   };
 
-  // ❌ Delete subscription
   const deleteSubscription = async (id: string) => {
     const { error } = await supabase
       .from('subscriptions')
       .delete()
       .eq('id', id);
 
-    if (error) console.error('Delete error:', error);
-    else setSubscriptions(prev => prev.filter(sub => sub.id !== id));
+    if (error) {
+      console.error('Delete error:', error);
+    } else {
+      setSubscriptions(prev => prev.filter(sub => sub.id !== id));
+    }
   };
 
   const activeSubscriptions = subscriptions.filter(sub => sub.is_active);
@@ -85,6 +93,9 @@ const Dashboard = () => {
   }, 0);
 
   const hasReachedLimit = user?.subscriptionTier === 'free' && subscriptions.length >= 3;
+
+  if (loading) return <div className="text-center mt-20 text-gray-600">Loading...</div>;
+  if (!user) return <div className="text-center mt-20 text-red-600">Please log in to view the dashboard.</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
