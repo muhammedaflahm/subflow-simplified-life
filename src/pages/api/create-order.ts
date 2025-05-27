@@ -1,14 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import Razorpay from "razorpay";
 
-type Data =
-  | { id: string; entity: string; amount: number; currency: string; receipt: string }
-  | { error: string };
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     const { amount } = req.body;
 
