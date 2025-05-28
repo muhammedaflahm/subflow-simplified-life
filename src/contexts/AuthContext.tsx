@@ -55,10 +55,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .eq('id', session.user.id)
               .single();
 
+            // Ensure subscription_tier is properly typed
+            const subscriptionTier = profile?.subscription_tier === 'premium' ? 'premium' : 'free';
+
             setUser({
               id: session.user.id,
               email: session.user.email ?? '',
-              subscriptionTier: profile?.subscription_tier ?? 'free',
+              subscriptionTier,
               isAdmin: profile?.is_admin ?? false,
               firstName: profile?.first_name,
               lastName: profile?.last_name,

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
@@ -41,7 +40,19 @@ const Dashboard = () => {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setSubscriptions(data as Subscription[]);
+        
+        // Map the data to ensure proper typing
+        const typedSubscriptions: Subscription[] = (data || []).map(sub => ({
+          id: sub.id,
+          name: sub.name || '',
+          price: sub.price || 0,
+          billing_cycle: (sub.billing_cycle === 'yearly' ? 'yearly' : 'monthly') as 'monthly' | 'yearly',
+          renewal_date: sub.renewal_date || '',
+          category: sub.category || '',
+          is_active: sub.is_active ?? true
+        }));
+        
+        setSubscriptions(typedSubscriptions);
       } catch (error) {
         console.error('Error loading subscriptions:', error);
         toast({
@@ -69,7 +80,18 @@ const Dashboard = () => {
 
       if (error) throw error;
       
-      setSubscriptions(prev => [data, ...prev]);
+      // Ensure proper typing for the new subscription
+      const newSubscription: Subscription = {
+        id: data.id,
+        name: data.name || '',
+        price: data.price || 0,
+        billing_cycle: (data.billing_cycle === 'yearly' ? 'yearly' : 'monthly') as 'monthly' | 'yearly',
+        renewal_date: data.renewal_date || '',
+        category: data.category || '',
+        is_active: data.is_active ?? true
+      };
+      
+      setSubscriptions(prev => [newSubscription, ...prev]);
       toast({
         title: "Subscription added!",
         description: `${sub.name} has been added to your subscriptions.`
