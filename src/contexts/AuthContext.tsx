@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 interface User {
   id: string;
@@ -43,49 +43,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        
-        if (data?.user) {
-          const { id, email } = data.user;
-
-          // Fetch profile data from profiles table
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('subscription_tier, is_admin, first_name, last_name, profile_picture')
-            .eq('id', id)
-            .single();
-
-          if (profileError) {
-            console.error('Error fetching profile:', profileError);
-          }
-
-          setUser({
-            id,
-            email: email ?? '',
-            subscriptionTier: profile?.subscription_tier ?? 'free',
-            isAdmin: profile?.is_admin ?? false,
-            firstName: profile?.first_name,
-            lastName: profile?.last_name,
-            profilePicture: profile?.profile_picture,
-          });
-        }
-      } catch (error) {
-        console.error('Error getting user:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUser();
-    
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        await getUser();
-      } else if (event === 'SIGNED_OUT') {
+      if (session?.user) {
+        // Defer profile fetching to avoid deadlock
+        setTimeout(async () => {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('subscription_tier, is_admin, first_name, last_name, profile_picture')
+              .eq('id', session.user.id)
+              .single();
+
+            setUser({
+              id: session.user.id,
+              email: session.user.email ?? '',
+              subscriptionTier: profile?.subscription_tier ?? 'free',
+              isAdmin: profile?.is_admin ?? false,
+              firstName: profile?.first_name,
+              lastName: profile?.last_name,
+              profilePicture: profile?.profile_picture,
+            });
+          } catch (error) {
+            console.error('Error fetching profile:', error);
+            setUser({
+              id: session.user.id,
+              email: session.user.email ?? '',
+              subscriptionTier: 'free',
+              isAdmin: false,
+            });
+          }
+        }, 0);
+      } else {
         setUser(null);
+      }
+      setLoading(false);
+    });
+
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        setLoading(false);
       }
     });
 
@@ -98,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async ({ email, password, firstName, lastName }: SignUpData) => {
-    const { data, error } = await supabase.auth.signUp({ 
+    const { error } = await supabase.auth.signUp({ 
       email, 
       password,
       options: {
@@ -110,26 +108,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     
     if (error) throw error;
-    
-    if (data.user) {
-      // Create profile record
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          { 
-            id: data.user.id, 
-            subscription_tier: 'free',
-            is_admin: email === 'admin@subsimplify.com',
-            first_name: firstName,
-            last_name: lastName,
-          }
-        ]);
-      
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        throw profileError;
-      }
-    }
   };
 
   const signInWithGoogle = async () => {
@@ -144,7 +122,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
   };
 
   return (

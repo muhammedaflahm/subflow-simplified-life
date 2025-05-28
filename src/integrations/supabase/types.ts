@@ -11,16 +11,37 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          created_at: string | null
+          first_name: string | null
           id: string
+          is_admin: boolean | null
           is_premium: boolean | null
+          last_name: string | null
+          profile_picture: string | null
+          subscription_tier: string | null
+          updated_at: string | null
         }
         Insert: {
+          created_at?: string | null
+          first_name?: string | null
           id: string
+          is_admin?: boolean | null
           is_premium?: boolean | null
+          last_name?: string | null
+          profile_picture?: string | null
+          subscription_tier?: string | null
+          updated_at?: string | null
         }
         Update: {
+          created_at?: string | null
+          first_name?: string | null
           id?: string
+          is_admin?: boolean | null
           is_premium?: boolean | null
+          last_name?: string | null
+          profile_picture?: string | null
+          subscription_tier?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -30,9 +51,11 @@ export type Database = {
           category: string | null
           created_at: string | null
           id: string
+          is_active: boolean | null
           name: string | null
           price: number | null
           renewal_date: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
@@ -40,9 +63,11 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           id?: string
+          is_active?: boolean | null
           name?: string | null
           price?: number | null
           renewal_date?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
@@ -50,9 +75,11 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           id?: string
+          is_active?: boolean | null
           name?: string | null
           price?: number | null
           renewal_date?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: []

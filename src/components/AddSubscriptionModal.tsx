@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, CreditCard, Tag, DollarSign } from 'lucide-react';
 
 interface AddSubscriptionModalProps {
   isOpen: boolean;
@@ -36,59 +37,76 @@ const AddSubscriptionModal = ({ isOpen, onClose, onAdd }: AddSubscriptionModalPr
     is_active: true
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.price || !formData.renewal_date || !formData.category) {
       return;
     }
 
-    onAdd({
-      name: formData.name,
-      price: parseFloat(formData.price),
-      billing_cycle: formData.billing_cycle,
-      renewal_date: formData.renewal_date,
-      category: formData.category,
-      is_active: formData.is_active
-    });
-
-    // Reset form
-    setFormData({
-      name: '',
-      price: '',
-      billing_cycle: 'monthly',
-      renewal_date: '',
-      category: '',
-      is_active: true
-    });
+    setIsSubmitting(true);
     
-    onClose();
+    try {
+      await onAdd({
+        name: formData.name,
+        price: parseFloat(formData.price),
+        billing_cycle: formData.billing_cycle,
+        renewal_date: formData.renewal_date,
+        category: formData.category,
+        is_active: formData.is_active
+      });
+
+      // Reset form
+      setFormData({
+        name: '',
+        price: '',
+        billing_cycle: 'monthly',
+        renewal_date: '',
+        category: '',
+        is_active: true
+      });
+      
+      onClose();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
         <DialogHeader>
-          <DialogTitle>Add New Subscription</DialogTitle>
-          <DialogDescription>
-            Add a new subscription to track your recurring expenses.
+          <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Add New Subscription
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
+            Add a new subscription to track your recurring expenses and get payment reminders.
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Service Name</Label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-medium text-gray-700 flex items-center">
+              <CreditCard className="w-4 h-4 mr-2" />
+              Service Name
+            </Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="e.g., Netflix, Spotify"
+              placeholder="e.g., Netflix, Spotify, Adobe Creative Cloud"
+              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="price">Price</Label>
+            <div className="space-y-2">
+              <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center">
+                <DollarSign className="w-4 h-4 mr-2" />
+                Price
+              </Label>
               <Input
                 id="price"
                 type="number"
@@ -96,19 +114,22 @@ const AddSubscriptionModal = ({ isOpen, onClose, onAdd }: AddSubscriptionModalPr
                 value={formData.price}
                 onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
                 placeholder="9.99"
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
               />
             </div>
             
-            <div>
-              <Label htmlFor="billingCycle">Billing Cycle</Label>
+            <div className="space-y-2">
+              <Label htmlFor="billingCycle" className="text-sm font-medium text-gray-700">
+                Billing Cycle
+              </Label>
               <Select 
                 value={formData.billing_cycle} 
                 onValueChange={(value: 'monthly' | 'yearly') => 
                   setFormData(prev => ({ ...prev, billing_cycle: value }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -119,13 +140,16 @@ const AddSubscriptionModal = ({ isOpen, onClose, onAdd }: AddSubscriptionModalPr
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="category">Category</Label>
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-sm font-medium text-gray-700 flex items-center">
+              <Tag className="w-4 h-4 mr-2" />
+              Category
+            </Label>
             <Select 
               value={formData.category} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
@@ -138,23 +162,43 @@ const AddSubscriptionModal = ({ isOpen, onClose, onAdd }: AddSubscriptionModalPr
             </Select>
           </div>
 
-          <div>
-            <Label htmlFor="renewalDate">Next Renewal Date</Label>
+          <div className="space-y-2">
+            <Label htmlFor="renewalDate" className="text-sm font-medium text-gray-700 flex items-center">
+              <Calendar className="w-4 h-4 mr-2" />
+              Next Renewal Date
+            </Label>
             <Input
               id="renewalDate"
               type="date"
               value={formData.renewal_date}
               onChange={(e) => setFormData(prev => ({ ...prev, renewal_date: e.target.value }))}
+              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               required
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onClose}
+              className="px-6"
+            >
               Cancel
             </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-              Add Subscription
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-6"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                  Adding...
+                </div>
+              ) : (
+                'Add Subscription'
+              )}
             </Button>
           </div>
         </form>
