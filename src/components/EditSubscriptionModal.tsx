@@ -32,36 +32,36 @@ const EditSubscriptionModal = ({ subscription, isOpen, onClose, onUpdate }: Edit
   const [formData, setFormData] = useState({
     name: subscription.name,
     price: subscription.price.toString(),
-    billingCycle: subscription.billingCycle,
-    renewalDate: subscription.renewalDate,
+    billing_cycle: subscription.billing_cycle,
+    renewal_date: subscription.renewal_date,
     category: subscription.category,
-    isActive: subscription.isActive
+    is_active: subscription.is_active
   });
 
   useEffect(() => {
     setFormData({
       name: subscription.name,
       price: subscription.price.toString(),
-      billingCycle: subscription.billingCycle,
-      renewalDate: subscription.renewalDate,
+      billing_cycle: subscription.billing_cycle,
+      renewal_date: subscription.renewal_date,
       category: subscription.category,
-      isActive: subscription.isActive
+      is_active: subscription.is_active
     });
   }, [subscription]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.price || !formData.renewalDate || !formData.category) {
+    if (!formData.name || !formData.price || !formData.renewal_date || !formData.category) {
       return;
     }
 
     onUpdate({
       name: formData.name,
       price: parseFloat(formData.price),
-      billingCycle: formData.billingCycle,
-      renewalDate: formData.renewalDate,
+      billing_cycle: formData.billing_cycle,
+      renewal_date: formData.renewal_date,
       category: formData.category,
-      isActive: formData.isActive
+      is_active: formData.is_active
     });
   };
 
@@ -104,9 +104,9 @@ const EditSubscriptionModal = ({ subscription, isOpen, onClose, onUpdate }: Edit
             <div>
               <Label htmlFor="billingCycle">Billing Cycle</Label>
               <Select 
-                value={formData.billingCycle} 
+                value={formData.billing_cycle} 
                 onValueChange={(value: 'monthly' | 'yearly') => 
-                  setFormData(prev => ({ ...prev, billingCycle: value }))
+                  setFormData(prev => ({ ...prev, billing_cycle: value }))
                 }
               >
                 <SelectTrigger>
@@ -144,8 +144,8 @@ const EditSubscriptionModal = ({ subscription, isOpen, onClose, onUpdate }: Edit
             <Input
               id="renewalDate"
               type="date"
-              value={formData.renewalDate}
-              onChange={(e) => setFormData(prev => ({ ...prev, renewalDate: e.target.value }))}
+              value={formData.renewal_date}
+              onChange={(e) => setFormData(prev => ({ ...prev, renewal_date: e.target.value }))}
               required
             />
           </div>
@@ -153,8 +153,8 @@ const EditSubscriptionModal = ({ subscription, isOpen, onClose, onUpdate }: Edit
           <div className="flex items-center space-x-2">
             <Switch
               id="isActive"
-              checked={formData.isActive}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
+              checked={formData.is_active}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
             />
             <Label htmlFor="isActive">Active subscription</Label>
           </div>

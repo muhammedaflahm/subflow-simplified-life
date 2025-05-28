@@ -15,8 +15,8 @@ const MonthlyChart = ({ subscriptions }: MonthlyChartProps) => {
     const categoryTotals: Record<string, number> = {};
     
     subscriptions.forEach(sub => {
-      if (sub.isActive) {
-        const monthlyAmount = sub.billingCycle === 'monthly' ? sub.price : sub.price / 12;
+      if (sub.is_active) {
+        const monthlyAmount = sub.billing_cycle === 'monthly' ? sub.price : sub.price / 12;
         categoryTotals[sub.category] = (categoryTotals[sub.category] || 0) + monthlyAmount;
       }
     });

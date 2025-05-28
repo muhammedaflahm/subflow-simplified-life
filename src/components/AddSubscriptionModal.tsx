@@ -30,35 +30,35 @@ const AddSubscriptionModal = ({ isOpen, onClose, onAdd }: AddSubscriptionModalPr
   const [formData, setFormData] = useState({
     name: '',
     price: '',
-    billingCycle: 'monthly' as 'monthly' | 'yearly',
-    renewalDate: '',
+    billing_cycle: 'monthly' as 'monthly' | 'yearly',
+    renewal_date: '',
     category: '',
-    isActive: true
+    is_active: true
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.price || !formData.renewalDate || !formData.category) {
+    if (!formData.name || !formData.price || !formData.renewal_date || !formData.category) {
       return;
     }
 
     onAdd({
       name: formData.name,
       price: parseFloat(formData.price),
-      billingCycle: formData.billingCycle,
-      renewalDate: formData.renewalDate,
+      billing_cycle: formData.billing_cycle,
+      renewal_date: formData.renewal_date,
       category: formData.category,
-      isActive: formData.isActive
+      is_active: formData.is_active
     });
 
     // Reset form
     setFormData({
       name: '',
       price: '',
-      billingCycle: 'monthly',
-      renewalDate: '',
+      billing_cycle: 'monthly',
+      renewal_date: '',
       category: '',
-      isActive: true
+      is_active: true
     });
     
     onClose();
@@ -103,9 +103,9 @@ const AddSubscriptionModal = ({ isOpen, onClose, onAdd }: AddSubscriptionModalPr
             <div>
               <Label htmlFor="billingCycle">Billing Cycle</Label>
               <Select 
-                value={formData.billingCycle} 
+                value={formData.billing_cycle} 
                 onValueChange={(value: 'monthly' | 'yearly') => 
-                  setFormData(prev => ({ ...prev, billingCycle: value }))
+                  setFormData(prev => ({ ...prev, billing_cycle: value }))
                 }
               >
                 <SelectTrigger>
@@ -143,8 +143,8 @@ const AddSubscriptionModal = ({ isOpen, onClose, onAdd }: AddSubscriptionModalPr
             <Input
               id="renewalDate"
               type="date"
-              value={formData.renewalDate}
-              onChange={(e) => setFormData(prev => ({ ...prev, renewalDate: e.target.value }))}
+              value={formData.renewal_date}
+              onChange={(e) => setFormData(prev => ({ ...prev, renewal_date: e.target.value }))}
               required
             />
           </div>

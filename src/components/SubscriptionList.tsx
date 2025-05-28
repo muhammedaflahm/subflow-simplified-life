@@ -53,7 +53,7 @@ const SubscriptionList = ({ subscriptions, onUpdate, onDelete }: SubscriptionLis
         <CardContent>
           <div className="space-y-4">
             {subscriptions.map((subscription) => {
-              const daysUntilRenewal = getDaysUntilRenewal(subscription.renewalDate);
+              const daysUntilRenewal = getDaysUntilRenewal(subscription.renewal_date);
               const isExpiringSoon = daysUntilRenewal <= 7;
               
               return (
@@ -90,11 +90,11 @@ const SubscriptionList = ({ subscriptions, onUpdate, onDelete }: SubscriptionLis
                       <div className="flex items-center space-x-1 text-sm text-gray-600">
                         <DollarSign className="w-4 h-4" />
                         <span className="font-medium">${subscription.price}</span>
-                        <span>/{subscription.billingCycle}</span>
+                        <span>/{subscription.billing_cycle}</span>
                       </div>
                       
-                      <Badge variant={subscription.isActive ? "default" : "secondary"}>
-                        {subscription.isActive ? 'Active' : 'Inactive'}
+                      <Badge variant={subscription.is_active ? "default" : "secondary"}>
+                        {subscription.is_active ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
                     
