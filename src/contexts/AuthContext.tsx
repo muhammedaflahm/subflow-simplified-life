@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
@@ -5,14 +6,26 @@ interface User {
   id: string;
   email: string;
   subscriptionTier: 'free' | 'premium';
+  isAdmin?: boolean;
+  firstName?: string;
+  lastName?: string;
+  profilePicture?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (userData: SignUpData) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+}
+
+interface SignUpData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,30 +44,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (data?.user) {
-        const { id, email } = data.user;
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) throw error;
+        
+        if (data?.user) {
+          const { id, email } = data.user;
 
-        // Fetch subscriptionTier from profiles table
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('subscription_tier')
-          .eq('id', id)
-          .single();
+          // Fetch profile data from profiles table
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('subscription_tier, is_admin, first_name, last_name, profile_picture')
+            .eq('id', id)
+            .single();
 
-        setUser({
-          id,
-          email: email ?? '',
-          subscriptionTier: profile?.subscription_tier ?? 'free',
-        });
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+          }
+
+          setUser({
+            id,
+            email: email ?? '',
+            subscriptionTier: profile?.subscription_tier ?? 'free',
+            isAdmin: profile?.is_admin ?? false,
+            firstName: profile?.first_name,
+            lastName: profile?.last_name,
+            profilePicture: profile?.profile_picture,
+          });
+        }
+      } catch (error) {
+        console.error('Error getting user:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getUser();
-    supabase.auth.onAuthStateChange(() => {
-      getUser(); // re-check user on sign-in or sign-out
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        await getUser();
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+      }
     });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -62,16 +97,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
   };
 
-const signUp = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) throw error;
-  if (data.user) {
-    await supabase.from('profiles').insert([
-      { id: data.user.id, subscription_tier: 'free' }
-    ]);
-  }
-};
+  const signUp = async ({ email, password, firstName, lastName }: SignUpData) => {
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+        }
+      }
+    });
+    
+    if (error) throw error;
+    
+    if (data.user) {
+      // Create profile record
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          { 
+            id: data.user.id, 
+            subscription_tier: 'free',
+            is_admin: email === 'admin@subsimplify.com',
+            first_name: firstName,
+            last_name: lastName,
+          }
+        ]);
+      
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        throw profileError;
+      }
+    }
+  };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
+      }
+    });
+    if (error) throw error;
+  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -79,7 +148,7 @@ const signUp = async (email: string, password: string) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );
