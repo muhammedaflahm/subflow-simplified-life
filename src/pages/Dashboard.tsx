@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import Header from '@/components/Header';
 import SubscriptionList from '@/components/SubscriptionList';
 import AddSubscriptionModal from '@/components/AddSubscriptionModal';
