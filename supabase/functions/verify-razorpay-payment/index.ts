@@ -1,104 +1,105 @@
-
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { createHash } from 'https://deno.land/std@0.168.0/crypto/mod.ts'
+import "https://deno.land/std@0.168.0/dotenv/load.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const authHeader = req.headers.get('Authorization')!
-    const token = authHeader.replace('Bearer ', '')
-    
+    const authHeader = req.headers.get("Authorization")!;
+    const token = authHeader.replace("Bearer ", "");
+
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
-    )
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } },
+    );
 
-    const { data: { user } } = await supabase.auth.getUser(token)
-    if (!user) throw new Error('Unauthorized')
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (!user) throw new Error("Unauthorized");
 
-    const { 
-      razorpay_payment_id, 
-      razorpay_order_id, 
+    const {
+      razorpay_payment_id,
+      razorpay_order_id,
       razorpay_signature,
       amount,
-      subscriptionType 
-    } = await req.json()
+      subscriptionType,
+    } = await req.json();
 
-    const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
+    const razorpayKeySecret = Deno.env.get("RAZORPAY_KEY_SECRET");
     if (!razorpayKeySecret) {
-      throw new Error('Razorpay secret not configured')
+      throw new Error("Razorpay secret not configured");
     }
 
-    // Verify signature
-    const expectedSignature = createHash('sha256')
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest('hex')
-    
-    const hmac = await crypto.subtle.importKey(
-      'raw',
+    // ✅ Correct HMAC-SHA256 signature verification using Web Crypto API
+    const key = await crypto.subtle.importKey(
+      "raw",
       new TextEncoder().encode(razorpayKeySecret),
-      { name: 'HMAC', hash: 'SHA-256' },
+      { name: "HMAC", hash: "SHA-256" },
       false,
-      ['sign']
-    )
-    
-    const signature = await crypto.subtle.sign(
-      'HMAC',
-      hmac,
-      new TextEncoder().encode(`${razorpay_order_id}|${razorpay_payment_id}`)
-    )
-    
-    const signatureHex = Array.from(new Uint8Array(signature))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('')
+      ["sign"],
+    );
 
-    if (signatureHex !== razorpay_signature) {
-      throw new Error('Invalid signature')
+    const signed = await crypto.subtle.sign(
+      "HMAC",
+      key,
+      new TextEncoder().encode(`${razorpay_order_id}|${razorpay_payment_id}`),
+    );
+
+    const expectedSignature = Array.from(new Uint8Array(signed))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    if (expectedSignature !== razorpay_signature) {
+      throw new Error("Invalid signature");
     }
 
     // Save payment record
-    await supabase.from('payments').insert({
+    await supabase.from("payments").insert({
       user_id: user.id,
       razorpay_payment_id,
       razorpay_order_id,
       amount,
-      currency: 'USD',
-      status: 'completed',
-      subscription_type: subscriptionType
-    })
+      currency: "USD",
+      status: "completed",
+      subscription_type: subscriptionType,
+    });
 
     // Upgrade user subscription
-    const newTier = 'premium'
-    await supabase.rpc('upgrade_user_subscription', {
+    const newTier = "premium";
+    await supabase.rpc("upgrade_user_subscription", {
       user_uuid: user.id,
-      new_tier: newTier
-    })
+      new_tier: newTier,
+    });
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Payment verified and subscription upgraded' }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
+      JSON.stringify({
+        success: true,
+        message: "Payment verified and subscription upgraded",
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
       },
-    )
+    );
   } catch (error) {
-    console.error('Error verifying payment:', error)
+    console.error("Error verifying payment:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400 
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
       },
-    )
+    );
   }
-})
+});
