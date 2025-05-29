@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
@@ -5,6 +6,7 @@ import SubscriptionList from '@/components/SubscriptionList';
 import AddSubscriptionModal from '@/components/AddSubscriptionModal';
 import MonthlyChart from '@/components/MonthlyChart';
 import CancellationAssistant from '@/components/CancellationAssistant';
+import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, CreditCard, TrendingUp, AlertCircle, Sparkles } from 'lucide-react';
@@ -26,6 +28,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
 
   useEffect(() => {
@@ -194,16 +197,34 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Welcome Section */}
         <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-2">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Welcome back, {user.firstName || 'there'}!
-            </h1>
-            {user.subscriptionTier === 'premium' && (
-              <Sparkles className="w-6 h-6 text-yellow-500" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 mb-2">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                Welcome back, {user.firstName || 'there'}!
+              </h1>
+              {user.subscriptionTier === 'premium' && (
+                <Sparkles className="w-6 h-6 text-yellow-500" />
+              )}
+            </div>
+            {user.subscriptionTier === 'free' && (
+              <Button 
+                onClick={() => setShowUpgrade(!showUpgrade)}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Upgrade to Premium
+              </Button>
             )}
           </div>
           <p className="text-gray-600">Manage your subscriptions and track your spending</p>
         </div>
+
+        {/* Subscription Upgrade Section */}
+        {showUpgrade && user.subscriptionTier === 'free' && (
+          <div className="mb-8">
+            <SubscriptionUpgrade />
+          </div>
+        )}
 
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -269,7 +290,7 @@ const Dashboard = () => {
           {hasReachedLimit && (
             <div className="mt-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
               <p className="text-sm text-orange-700 font-medium">
-                Free plan limited to 3 subscriptions. Upgrade to Pro for unlimited access.
+                Free plan limited to 3 subscriptions. Upgrade to Premium for unlimited access.
               </p>
             </div>
           )}
