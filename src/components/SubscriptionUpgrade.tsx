@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
-import { convertPrice, formatPrice, currencies } from '@/utils/currencyUtils';
+import { convertPrice, formatPrice, currencies, getRazorpayCurrency } from '@/utils/currencyUtils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -57,20 +57,48 @@ const SubscriptionUpgrade = () => {
   ];
 
   const handleUpgrade = async (plan: typeof plans[0]) => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "Please log in to upgrade your subscription.",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
+      console.log('Starting payment process for plan:', plan);
+      console.log('User currency:', currency);
+      
+      // Get the appropriate currency for Razorpay
+      const razorpayCurrency = getRazorpayCurrency(currency);
+      console.log('Using Razorpay currency:', razorpayCurrency);
+
       // Create Razorpay order with converted price
       const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
         body: {
           amount: plan.price,
-          currency: currency.code,
+          currency: razorpayCurrency,
           subscriptionType: plan.subscriptionType
         }
       });
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw new Error(orderError.message || 'Failed to create order');
+      }
+
+      if (!orderData?.order) {
+        throw new Error('Invalid order response from server');
+      }
+
+      console.log('Order created successfully:', orderData.order);
+
+      // Check if Razorpay is loaded
+      if (!window.Razorpay) {
+        throw new Error('Razorpay SDK not loaded. Please refresh the page and try again.');
+      }
 
       const options = {
         key: 'rzp_test_qDFJwdL3wflxyR',
@@ -87,6 +115,7 @@ const SubscriptionUpgrade = () => {
           color: '#3B82F6',
         },
         handler: async function (response: any) {
+          console.log('Payment successful, verifying:', response);
           try {
             const { error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
               body: {
@@ -98,14 +127,20 @@ const SubscriptionUpgrade = () => {
               }
             });
 
-            if (verifyError) throw verifyError;
+            if (verifyError) {
+              console.error('Payment verification error:', verifyError);
+              throw new Error(verifyError.message || 'Payment verification failed');
+            }
 
             toast({
               title: "🎉 Payment successful!",
               description: "Welcome to SubSimplify Premium! Please refresh the page to access your new features.",
             });
             
-            window.location.reload();
+            // Refresh the page to update the user's subscription status
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
           } catch (error) {
             console.error('Payment verification failed:', error);
             toast({
@@ -117,19 +152,31 @@ const SubscriptionUpgrade = () => {
         },
         modal: {
           ondismiss: function() {
+            console.log('Payment modal dismissed');
             setLoading(false);
           }
         }
       };
 
+      console.log('Opening Razorpay with options:', options);
       const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', function (response: any) {
+        console.error('Payment failed:', response.error);
+        toast({
+          variant: "destructive",
+          title: "Payment failed",
+          description: response.error.description || "Payment could not be processed.",
+        });
+        setLoading(false);
+      });
+      
       razorpay.open();
     } catch (error) {
       console.error('Payment initiation failed:', error);
       toast({
         variant: "destructive",
         title: "Payment failed",
-        description: "Unable to process payment. Please try again.",
+        description: error instanceof Error ? error.message : "Unable to process payment. Please try again.",
       });
       setLoading(false);
     }

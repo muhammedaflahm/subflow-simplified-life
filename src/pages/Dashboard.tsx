@@ -25,6 +25,7 @@ export interface Subscription {
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
+  const { currency } = useCurrency();
   const { toast } = useToast();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -161,8 +162,12 @@ const Dashboard = () => {
   };
 
   const activeSubscriptions = subscriptions.filter(sub => sub.is_active);
+  
+  // Calculate total monthly spend in user's currency
   const totalMonthlySpend = activeSubscriptions.reduce((total, sub) => {
-    return total + (sub.billing_cycle === 'monthly' ? sub.price : sub.price / 12);
+    // Convert from USD (stored price) to user's currency
+    const convertedPrice = (sub.price * currency.rate) / 1; // currencies.USD.rate is 1
+    return total + (sub.billing_cycle === 'monthly' ? convertedPrice : convertedPrice / 12);
   }, 0);
 
   const hasReachedLimit = user?.subscriptionTier === 'free' && subscriptions.length >= 3;
@@ -251,8 +256,12 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">${totalMonthlySpend.toFixed(2)}</div>
-              <p className="text-xs text-gray-600">${(totalMonthlySpend * 12).toFixed(2)} annually</p>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {currency.symbol}{totalMonthlySpend.toFixed(2)}
+              </div>
+              <p className="text-xs text-gray-600">
+                {currency.symbol}{(totalMonthlySpend * 12).toFixed(2)} annually
+              </p>
             </CardContent>
           </Card>
 

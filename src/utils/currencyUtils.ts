@@ -54,9 +54,21 @@ export const detectUserCurrency = async (): Promise<CurrencyInfo> => {
 export const convertPrice = (basePrice: number, fromCurrency: CurrencyInfo, toCurrency: CurrencyInfo): number => {
   // Convert to USD first, then to target currency
   const usdPrice = basePrice / fromCurrency.rate;
-  return Math.round(usdPrice * toCurrency.rate);
+  return Math.round(usdPrice * toCurrency.rate * 100) / 100; // Round to 2 decimal places
 };
 
 export const formatPrice = (price: number, currency: CurrencyInfo): string => {
-  return `${currency.symbol}${price}`;
+  return `${currency.symbol}${price.toFixed(2)}`;
+};
+
+// Convert subscription price from USD to user's currency
+export const convertSubscriptionPrice = (usdPrice: number, targetCurrency: CurrencyInfo): number => {
+  return convertPrice(usdPrice, currencies.USD, targetCurrency);
+};
+
+// Get Razorpay currency code (some currencies need specific codes for Razorpay)
+export const getRazorpayCurrency = (currency: CurrencyInfo): string => {
+  // Razorpay primarily supports INR, but also supports international currencies
+  const supportedCurrencies = ['INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD'];
+  return supportedCurrencies.includes(currency.code) ? currency.code : 'USD';
 };
