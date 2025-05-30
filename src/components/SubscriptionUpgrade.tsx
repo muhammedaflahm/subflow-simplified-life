@@ -2,19 +2,13 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
-import { convertPrice, formatPrice, currencies, getRazorpayCurrency } from '@/utils/currencyUtils';
+import { convertPrice, formatPrice, currencies } from '@/utils/currencyUtils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Check, Sparkles, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
 
 const SubscriptionUpgrade = () => {
   const { user } = useAuth();
@@ -32,6 +26,7 @@ const SubscriptionUpgrade = () => {
       price: monthlyPrice,
       period: 'month',
       subscriptionType: 'monthly',
+      variantId: '123456', // Replace with actual Lemon Squeezy variant ID
       savings: null,
       popular: false,
     },
@@ -40,6 +35,7 @@ const SubscriptionUpgrade = () => {
       price: yearlyPrice,
       period: 'year',
       subscriptionType: 'yearly',
+      variantId: '123457', // Replace with actual Lemon Squeezy variant ID
       savings: 'Save 17%',
       popular: true,
     }
@@ -68,116 +64,48 @@ const SubscriptionUpgrade = () => {
 
     setLoading(true);
     try {
-      console.log('Starting payment process for plan:', plan);
-      console.log('User currency:', currency);
+      console.log('Starting Lemon Squeezy checkout process for plan:', plan);
       
-      // Get the appropriate currency for Razorpay
-      const razorpayCurrency = getRazorpayCurrency(currency);
-      console.log('Using Razorpay currency:', razorpayCurrency);
-
-      // Create Razorpay order with converted price
-      const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
+      // Create Lemon Squeezy checkout session
+      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-lemon-squeezy-checkout', {
         body: {
-          amount: plan.price,
-          currency: razorpayCurrency,
-          subscriptionType: plan.subscriptionType
+          variantId: plan.variantId,
+          customData: {
+            user_id: user.id,
+            subscription_type: plan.subscriptionType,
+            user_email: user.email,
+          }
         }
       });
 
-      if (orderError) {
-        console.error('Order creation error:', orderError);
-        throw new Error(orderError.message || 'Failed to create order');
+      if (checkoutError) {
+        console.error('Checkout creation error:', checkoutError);
+        throw new Error(checkoutError.message || 'Failed to create checkout session');
       }
 
-      if (!orderData?.order) {
-        throw new Error('Invalid order response from server');
+      if (!checkoutData?.checkout) {
+        throw new Error('Invalid checkout response from server');
       }
 
-      console.log('Order created successfully:', orderData.order);
+      console.log('Checkout session created:', checkoutData.checkout);
 
-      // Check if Razorpay is loaded
-      if (!window.Razorpay) {
-        throw new Error('Razorpay SDK not loaded. Please refresh the page and try again.');
-      }
+      // Redirect to Lemon Squeezy checkout page
+      const checkoutUrl = checkoutData.checkout.attributes.url;
+      window.open(checkoutUrl, '_blank');
 
-      const options = {
-        key: 'rzp_test_qDFJwdL3wflxyR',
-        amount: orderData.order.amount,
-        currency: orderData.order.currency,
-        name: 'SubSimplify',
-        description: `${plan.name} Premium Subscription`,
-        order_id: orderData.order.id,
-        prefill: {
-          email: user.email,
-          name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-        },
-        theme: {
-          color: '#3B82F6',
-        },
-        handler: async function (response: any) {
-          console.log('Payment successful, verifying:', response);
-          try {
-            const { error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
-              body: {
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                amount: plan.price,
-                subscriptionType: plan.subscriptionType
-              }
-            });
-
-            if (verifyError) {
-              console.error('Payment verification error:', verifyError);
-              throw new Error(verifyError.message || 'Payment verification failed');
-            }
-
-            toast({
-              title: "🎉 Payment successful!",
-              description: "Welcome to SubSimplify Premium! Please refresh the page to access your new features.",
-            });
-            
-            // Refresh the page to update the user's subscription status
-            setTimeout(() => {
-              window.location.reload();
-            }, 2000);
-          } catch (error) {
-            console.error('Payment verification failed:', error);
-            toast({
-              variant: "destructive",
-              title: "Payment verification failed",
-              description: "Please contact support if your payment was deducted.",
-            });
-          }
-        },
-        modal: {
-          ondismiss: function() {
-            console.log('Payment modal dismissed');
-            setLoading(false);
-          }
-        }
-      };
-
-      console.log('Opening Razorpay with options:', options);
-      const razorpay = new window.Razorpay(options);
-      razorpay.on('payment.failed', function (response: any) {
-        console.error('Payment failed:', response.error);
-        toast({
-          variant: "destructive",
-          title: "Payment failed",
-          description: response.error.description || "Payment could not be processed.",
-        });
-        setLoading(false);
+      toast({
+        title: "Redirecting to checkout",
+        description: "You'll be redirected to complete your payment.",
       });
-      
-      razorpay.open();
+
     } catch (error) {
-      console.error('Payment initiation failed:', error);
+      console.error('Checkout initiation failed:', error);
       toast({
         variant: "destructive",
-        title: "Payment failed",
-        description: error instanceof Error ? error.message : "Unable to process payment. Please try again.",
+        title: "Checkout failed",
+        description: error instanceof Error ? error.message : "Unable to create checkout session. Please try again.",
       });
+    } finally {
       setLoading(false);
     }
   };
@@ -284,7 +212,7 @@ const SubscriptionUpgrade = () => {
 
       <div className="text-center space-y-2">
         <p className="text-sm text-gray-500">
-          🔒 Secure payment powered by Razorpay • 🔄 Cancel anytime • 💳 All major payment methods accepted
+          🔒 Secure payment powered by Lemon Squeezy • 🔄 Cancel anytime • 💳 All major payment methods accepted
         </p>
         <p className="text-xs text-gray-400">
           Prices shown in {currency.name} ({currency.code}). Automatically detected based on your location.
