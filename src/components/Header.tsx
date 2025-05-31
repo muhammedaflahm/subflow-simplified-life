@@ -2,7 +2,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, Settings, Crown, DollarSign } from 'lucide-react';
+import { LogOut, Settings, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
@@ -26,12 +26,6 @@ const Header = () => {
               SubSimplify
             </h1>
           </div>
-          {user?.subscriptionTier === 'premium' && (
-            <div className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-              <Crown className="w-3 h-3" />
-              <span>Pro</span>
-            </div>
-          )}
         </div>
 
         <div className="flex items-center space-x-4">
@@ -55,7 +49,7 @@ const Header = () => {
             </Avatar>
             <div className="hidden sm:block">
               <p className="text-sm font-medium text-gray-900">{user?.email}</p>
-              <p className="text-xs text-gray-500 capitalize">{user?.subscriptionTier} Plan</p>
+              <p className="text-xs text-gray-500">Free Plan</p>
             </div>
           </div>
           
