@@ -17,8 +17,8 @@ const SubscriptionUpgrade = () => {
   const [loading, setLoading] = useState(false);
 
   // Convert base prices to user's currency
-  const monthlyPrice = convertPrice(3, currencies.USD, currency);
-  const yearlyPrice = convertPrice(30, currencies.USD, currency);
+  const monthlyPrice = convertPrice(9.99, currencies.USD, currency);
+  const yearlyPrice = convertPrice(99.99, currencies.USD, currency);
 
   const plans = [
     {
@@ -26,7 +26,7 @@ const SubscriptionUpgrade = () => {
       price: monthlyPrice,
       period: 'month',
       subscriptionType: 'monthly',
-      variantId: '123456', // Replace with actual Lemon Squeezy variant ID
+      priceId: 'price_monthly_premium', // Replace with actual Stripe Price ID
       savings: null,
       popular: false,
     },
@@ -35,7 +35,7 @@ const SubscriptionUpgrade = () => {
       price: yearlyPrice,
       period: 'year',
       subscriptionType: 'yearly',
-      variantId: '123457', // Replace with actual Lemon Squeezy variant ID
+      priceId: 'price_yearly_premium', // Replace with actual Stripe Price ID
       savings: 'Save 17%',
       popular: true,
     }
@@ -64,12 +64,12 @@ const SubscriptionUpgrade = () => {
 
     setLoading(true);
     try {
-      console.log('Starting Lemon Squeezy checkout process for plan:', plan);
+      console.log('Starting Stripe checkout process for plan:', plan);
       
-      // Create Lemon Squeezy checkout session
-      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-lemon-squeezy-checkout', {
+      // Create Stripe checkout session
+      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-stripe-checkout', {
         body: {
-          variantId: plan.variantId,
+          priceId: plan.priceId,
           customData: {
             user_id: user.id,
             subscription_type: plan.subscriptionType,
@@ -83,15 +83,14 @@ const SubscriptionUpgrade = () => {
         throw new Error(checkoutError.message || 'Failed to create checkout session');
       }
 
-      if (!checkoutData?.checkout) {
+      if (!checkoutData?.url) {
         throw new Error('Invalid checkout response from server');
       }
 
-      console.log('Checkout session created:', checkoutData.checkout);
+      console.log('Checkout session created, redirecting to:', checkoutData.url);
 
-      // Redirect to Lemon Squeezy checkout page
-      const checkoutUrl = checkoutData.checkout.attributes.url;
-      window.open(checkoutUrl, '_blank');
+      // Redirect to Stripe checkout page
+      window.open(checkoutData.url, '_blank');
 
       toast({
         title: "Redirecting to checkout",
@@ -212,7 +211,7 @@ const SubscriptionUpgrade = () => {
 
       <div className="text-center space-y-2">
         <p className="text-sm text-gray-500">
-          🔒 Secure payment powered by Lemon Squeezy • 🔄 Cancel anytime • 💳 All major payment methods accepted
+          🔒 Secure payment powered by Stripe • 🔄 Cancel anytime • 💳 All major payment methods accepted
         </p>
         <p className="text-xs text-gray-400">
           Prices shown in {currency.name} ({currency.code}). Automatically detected based on your location.
