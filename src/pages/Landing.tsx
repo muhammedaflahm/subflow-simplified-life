@@ -4,9 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { convertPrice, formatPrice, currencies } from '@/utils/currencyUtils';
-import CurrencySelector from '@/components/CurrencySelector';
 import FeedbackSection from '@/components/FeedbackSection';
 import { 
   CreditCard, 
@@ -33,7 +30,6 @@ import {
 const Landing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { currency } = useCurrency();
 
   const handleGetStarted = () => {
     if (user) {
@@ -42,10 +38,6 @@ const Landing = () => {
       navigate('/auth');
     }
   };
-
-  // Convert pricing based on currency
-  const monthlyPrice = convertPrice(3, currencies.USD, currency);
-  const yearlyPrice = convertPrice(30, currencies.USD, currency);
 
   const features = [
     {
@@ -127,12 +119,11 @@ const Landing = () => {
                 SubSimplify
               </span>
               <Badge variant="secondary" className="ml-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200">
-                AI-Powered
+                Free Forever
               </Badge>
             </div>
             
             <div className="flex items-center space-x-4">
-              <CurrencySelector />
               {user ? (
                 <Button onClick={() => navigate('/dashboard')} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
                   <ArrowRight className="w-4 h-4 mr-2" />
@@ -158,7 +149,7 @@ const Landing = () => {
         <div className="text-center">
           <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-6 shadow-lg border border-blue-100">
             <Sparkles className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm font-medium text-gray-700">AI-Powered Subscription Management</span>
+            <span className="text-sm font-medium text-gray-700">100% Free Subscription Management</span>
           </div>
           
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
@@ -169,7 +160,7 @@ const Landing = () => {
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
             Harness the power of AI to track, optimize, and cancel your recurring subscriptions. 
-            Save money effortlessly with intelligent insights and automated management.
+            Save money effortlessly with intelligent insights and automated management - completely free, forever.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -191,24 +182,10 @@ const Landing = () => {
             </Button>
           </div>
 
-          {/* Pricing Preview */}
-          <div className="inline-flex items-center space-x-6 bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-xl border border-blue-100 mb-8">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{formatPrice(monthlyPrice, currency)}</div>
-              <div className="text-sm text-gray-500">per month</div>
-            </div>
-            <div className="w-px h-8 bg-gray-300"></div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{formatPrice(yearlyPrice, currency)}</div>
-              <div className="text-sm text-gray-500">per year</div>
-              <Badge className="bg-green-100 text-green-700 text-xs">Save 17%</Badge>
-            </div>
-          </div>
-
           <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>Free forever plan</span>
+              <span>Free forever</span>
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
@@ -216,7 +193,7 @@ const Landing = () => {
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>Cancel anytime</span>
+              <span>Unlimited subscriptions</span>
             </div>
           </div>
         </div>
@@ -228,9 +205,9 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div className="group hover:scale-105 transition-transform duration-300">
               <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-                {formatPrice(convertPrice(200, currencies.USD, currency), currency)}+
+                100%
               </div>
-              <div className="text-gray-600">Average savings per user</div>
+              <div className="text-gray-600">Free platform</div>
             </div>
             <div className="group hover:scale-105 transition-transform duration-300">
               <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">2min</div>
@@ -328,7 +305,7 @@ const Landing = () => {
             Ready to simplify your subscriptions?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of users who have taken control of their recurring payments with AI-powered insights.
+            Join thousands of users who have taken control of their recurring payments with our free AI-powered platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -344,7 +321,7 @@ const Landing = () => {
               variant="outline"
               className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 transition-all duration-300"
             >
-              Schedule Demo
+              Learn More
             </Button>
           </div>
         </div>
@@ -363,7 +340,7 @@ const Landing = () => {
                 <span className="text-xl font-bold text-white">SubSimplify</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
-                AI-powered subscription management platform helping users save money and take control of their recurring payments.
+                Free subscription management platform helping users save money and take control of their recurring payments.
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
@@ -383,7 +360,6 @@ const Landing = () => {
               <h3 className="text-white font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2 text-sm">
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Pricing</a></li>
                 <li><a href="#" className="hover:text-blue-400 transition-colors">About Us</a></li>
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Blog</a></li>
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Help Center</a></li>
@@ -431,7 +407,7 @@ const Landing = () => {
               © 2024 SubSimplify. All rights reserved. Built with ❤️ for smart savers.
             </div>
             <div className="flex items-center space-x-4 text-sm text-gray-400">
-              <span>Powered by AI</span>
+              <span>100% Free</span>
               <div className="w-px h-4 bg-gray-600"></div>
               <span>Secure & Private</span>
               <div className="w-px h-4 bg-gray-600"></div>
