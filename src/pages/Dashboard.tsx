@@ -6,10 +6,9 @@ import Header from '@/components/Header';
 import SubscriptionList from '@/components/SubscriptionList';
 import AddSubscriptionModal from '@/components/AddSubscriptionModal';
 import MonthlyChart from '@/components/MonthlyChart';
-import CancellationAssistant from '@/components/CancellationAssistant';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, CreditCard, TrendingUp, AlertCircle } from 'lucide-react';
+import { Plus, CreditCard, TrendingUp, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -44,7 +43,6 @@ const Dashboard = () => {
 
         if (error) throw error;
         
-        // Map the data to ensure proper typing
         const typedSubscriptions: Subscription[] = (data || []).map(sub => ({
           id: sub.id,
           name: sub.name || '',
@@ -83,7 +81,6 @@ const Dashboard = () => {
 
       if (error) throw error;
       
-      // Ensure proper typing for the new subscription
       const newSubscription: Subscription = {
         id: data.id,
         name: data.name || '',
@@ -162,19 +159,17 @@ const Dashboard = () => {
 
   const activeSubscriptions = subscriptions.filter(sub => sub.is_active);
   
-  // Calculate total monthly spend in user's currency
   const totalMonthlySpend = activeSubscriptions.reduce((total, sub) => {
-    // Convert from USD (stored price) to user's currency
-    const convertedPrice = (sub.price * currency.rate) / 1; // currencies.USD.rate is 1
+    const convertedPrice = (sub.price * currency.rate) / 1;
     return total + (sub.billing_cycle === 'monthly' ? convertedPrice : convertedPrice / 12);
   }, 0);
 
   if (loading || loadingSubscriptions) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-900 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -182,74 +177,62 @@ const Dashboard = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600">Please log in to view your dashboard.</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Please sign in</h2>
+          <p className="text-gray-600">You need to be signed in to view your dashboard.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 mb-2">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                Welcome back, {user.firstName || 'there'}!
-              </h1>
-            </div>
-          </div>
-          <p className="text-gray-600">Manage your subscriptions and track your spending - completely free!</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Welcome back{user.firstName ? `, ${user.firstName}` : ''}!
+          </h1>
+          <p className="text-gray-600">Manage your subscriptions and track your spending</p>
         </div>
 
-        {/* Overview Cards */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <Card className="border-0 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Active Subscriptions</CardTitle>
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <CreditCard className="h-4 w-4 text-blue-600" />
-              </div>
+              <CreditCard className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{activeSubscriptions.length}</div>
-              <p className="text-xs text-gray-600">Unlimited tracking</p>
+              <div className="text-2xl font-bold text-gray-900">{activeSubscriptions.length}</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <Card className="border-0 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Monthly Spend</CardTitle>
-              <div className="p-2 bg-green-100 rounded-lg">
-                <TrendingUp className="h-4 w-4 text-green-600" />
-              </div>
+              <TrendingUp className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-2xl font-bold text-gray-900">
                 {currency.symbol}{totalMonthlySpend.toFixed(2)}
               </div>
-              <p className="text-xs text-gray-600">
-                {currency.symbol}{(totalMonthlySpend * 12).toFixed(2)} annually
+              <p className="text-xs text-gray-500">
+                {currency.symbol}{(totalMonthlySpend * 12).toFixed(2)} yearly
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <Card className="border-0 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Next Payment</CardTitle>
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <AlertCircle className="h-4 w-4 text-orange-600" />
-              </div>
+              <Calendar className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-2xl font-bold text-gray-900">
                 {activeSubscriptions.length > 0
                   ? new Date(Math.min(...activeSubscriptions.map(s => new Date(s.renewal_date).getTime()))).toLocaleDateString('en-US', {
                       month: 'short',
@@ -257,7 +240,6 @@ const Dashboard = () => {
                     })
                   : 'None'}
               </div>
-              <p className="text-xs text-gray-600">Upcoming renewal</p>
             </CardContent>
           </Card>
         </div>
@@ -266,13 +248,14 @@ const Dashboard = () => {
         <div className="mb-8">
           <Button 
             onClick={() => setShowAddModal(true)} 
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 px-6 py-3 h-auto"
+            className="bg-gray-900 hover:bg-gray-800 text-white"
           >
-            <Plus className="w-5 h-5 mr-2" />
-            Add New Subscription
+            <Plus className="w-4 h-4 mr-2" />
+            Add Subscription
           </Button>
         </div>
 
+        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <SubscriptionList 
@@ -281,9 +264,8 @@ const Dashboard = () => {
               onDelete={deleteSubscription} 
             />
           </div>
-          <div className="space-y-8">
+          <div>
             <MonthlyChart subscriptions={subscriptions} />
-            <CancellationAssistant />
           </div>
         </div>
       </main>
