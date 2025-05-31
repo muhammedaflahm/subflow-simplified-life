@@ -7,10 +7,9 @@ import SubscriptionList from '@/components/SubscriptionList';
 import AddSubscriptionModal from '@/components/AddSubscriptionModal';
 import MonthlyChart from '@/components/MonthlyChart';
 import CancellationAssistant from '@/components/CancellationAssistant';
-import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, CreditCard, TrendingUp, AlertCircle, Sparkles } from 'lucide-react';
+import { Plus, CreditCard, TrendingUp, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,7 +29,6 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
 
   useEffect(() => {
@@ -171,8 +169,6 @@ const Dashboard = () => {
     return total + (sub.billing_cycle === 'monthly' ? convertedPrice : convertedPrice / 12);
   }, 0);
 
-  const hasReachedLimit = user?.subscriptionTier === 'free' && subscriptions.length >= 3;
-
   if (loading || loadingSubscriptions) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
@@ -208,29 +204,10 @@ const Dashboard = () => {
               <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                 Welcome back, {user.firstName || 'there'}!
               </h1>
-              {user.subscriptionTier === 'premium' && (
-                <Sparkles className="w-6 h-6 text-yellow-500" />
-              )}
             </div>
-            {user.subscriptionTier === 'free' && (
-              <Button 
-                onClick={() => setShowUpgrade(!showUpgrade)}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Upgrade to Premium
-              </Button>
-            )}
           </div>
-          <p className="text-gray-600">Manage your subscriptions and track your spending</p>
+          <p className="text-gray-600">Manage your subscriptions and track your spending - completely free!</p>
         </div>
-
-        {/* Subscription Upgrade Section */}
-        {showUpgrade && user.subscriptionTier === 'free' && (
-          <div className="mb-8">
-            <SubscriptionUpgrade />
-          </div>
-        )}
 
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -243,9 +220,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-gray-900 mb-1">{activeSubscriptions.length}</div>
-              <p className="text-xs text-gray-600">
-                {user?.subscriptionTier === 'free' ? `${3 - subscriptions.length} remaining` : 'Unlimited'}
-              </p>
+              <p className="text-xs text-gray-600">Unlimited tracking</p>
             </CardContent>
           </Card>
 
@@ -291,19 +266,11 @@ const Dashboard = () => {
         <div className="mb-8">
           <Button 
             onClick={() => setShowAddModal(true)} 
-            disabled={hasReachedLimit} 
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 px-6 py-3 h-auto"
           >
             <Plus className="w-5 h-5 mr-2" />
             Add New Subscription
           </Button>
-          {hasReachedLimit && (
-            <div className="mt-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm text-orange-700 font-medium">
-                Free plan limited to 3 subscriptions. Upgrade to Premium for unlimited access.
-              </p>
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
