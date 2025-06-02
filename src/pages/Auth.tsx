@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import SignIn from '@/components/SignIn';
 import SignUp from '@/components/SignUp';
@@ -8,7 +8,15 @@ import { DollarSign } from 'lucide-react';
 
 const Auth = () => {
   const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(false);
+
+  useEffect(() => {
+    // Check if signup parameter is present in URL
+    if (searchParams.get('signup') === 'true') {
+      setIsSignUp(true);
+    }
+  }, [searchParams]);
 
   if (loading) {
     return (

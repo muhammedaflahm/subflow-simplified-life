@@ -35,7 +35,7 @@ const Landing = () => {
     if (user) {
       navigate('/dashboard');
     } else {
-      navigate('/auth');
+      navigate('/auth?signup=true');
     }
   };
 
