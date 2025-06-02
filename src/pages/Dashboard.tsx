@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCurrency } from '@/contexts/CurrencyContext';
 import Header from '@/components/Header';
 import SubscriptionList from '@/components/SubscriptionList';
 import AddSubscriptionModal from '@/components/AddSubscriptionModal';
@@ -24,7 +23,6 @@ export interface Subscription {
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
-  const { currency } = useCurrency();
   const { toast } = useToast();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -160,8 +158,7 @@ const Dashboard = () => {
   const activeSubscriptions = subscriptions.filter(sub => sub.is_active);
   
   const totalMonthlySpend = activeSubscriptions.reduce((total, sub) => {
-    const convertedPrice = (sub.price * currency.rate) / 1;
-    return total + (sub.billing_cycle === 'monthly' ? convertedPrice : convertedPrice / 12);
+    return total + (sub.billing_cycle === 'monthly' ? sub.price : sub.price / 12);
   }, 0);
 
   if (loading || loadingSubscriptions) {
@@ -218,10 +215,10 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">
-                {currency.symbol}{totalMonthlySpend.toFixed(2)}
+                ${totalMonthlySpend.toFixed(2)}
               </div>
               <p className="text-xs text-gray-500">
-                {currency.symbol}{(totalMonthlySpend * 12).toFixed(2)} yearly
+                ${(totalMonthlySpend * 12).toFixed(2)} yearly
               </p>
             </CardContent>
           </Card>

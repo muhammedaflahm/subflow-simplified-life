@@ -1,7 +1,5 @@
 
 import { useState } from 'react';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { convertPrice, formatPrice, currencies } from '@/utils/currencyUtils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,12 +24,10 @@ interface SubscriptionListProps {
 }
 
 const SubscriptionList = ({ subscriptions, onUpdate, onDelete }: SubscriptionListProps) => {
-  const { currency } = useCurrency();
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
 
-  const convertSubscriptionPrice = (price: number) => {
-    // Assuming stored prices are in USD, convert to user's currency
-    return convertPrice(price, currencies.USD, currency);
+  const formatPrice = (price: number) => {
+    return `$${price.toFixed(2)}`;
   };
 
   const getCategoryColor = (category: string) => {
@@ -64,7 +60,6 @@ const SubscriptionList = ({ subscriptions, onUpdate, onDelete }: SubscriptionLis
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Subscriptions</h2>
       {subscriptions.map((subscription) => {
-        const convertedPrice = convertSubscriptionPrice(subscription.price);
         const nextRenewal = new Date(subscription.renewal_date);
         const isUpcoming = nextRenewal.getTime() - Date.now() <= 7 * 24 * 60 * 60 * 1000; // Within 7 days
 
@@ -122,7 +117,7 @@ const SubscriptionList = ({ subscriptions, onUpdate, onDelete }: SubscriptionLis
                   <div>
                     <p className="text-sm text-gray-600">Price</p>
                     <p className="font-semibold text-gray-900">
-                      {formatPrice(convertedPrice, currency)}/{subscription.billing_cycle === 'monthly' ? 'month' : 'year'}
+                      {formatPrice(subscription.price)}/{subscription.billing_cycle === 'monthly' ? 'month' : 'year'}
                     </p>
                   </div>
                 </div>
