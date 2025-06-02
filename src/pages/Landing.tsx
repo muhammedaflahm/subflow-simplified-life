@@ -39,6 +39,10 @@ const Landing = () => {
     }
   };
 
+  const handleSignIn = () => {
+    navigate('/auth');
+  };
+
   const features = [
     {
       icon: CreditCard,
@@ -131,10 +135,10 @@ const Landing = () => {
                 </Button>
               ) : (
                 <>
-                  <Button variant="ghost" onClick={() => navigate('/auth')} className="hover:bg-blue-50">
+                  <Button variant="ghost" onClick={handleSignIn} className="hover:bg-blue-50">
                     Sign In
                   </Button>
-                  <Button onClick={() => navigate('/auth')} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
+                  <Button onClick={handleGetStarted} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
                     Get Started
                   </Button>
                 </>
@@ -298,7 +302,7 @@ const Landing = () => {
       {/* Feedback Section */}
       <FeedbackSection />
 
-      {/* CTA Section */}
+      {/* CTA Section - Updated with better button visibility */}
       <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
@@ -319,7 +323,7 @@ const Landing = () => {
             <Button 
               size="lg" 
               variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 transition-all duration-300"
+              className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-4 transition-all duration-300"
             >
               Learn More
             </Button>
