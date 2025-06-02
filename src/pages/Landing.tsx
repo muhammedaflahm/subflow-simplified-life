@@ -43,37 +43,37 @@ const Landing = () => {
     {
       icon: CreditCard,
       title: "Smart Subscription Tracking",
-      description: "AI-powered categorization and automatic renewal detection for all your subscriptions.",
+      description: "Easy categorization and automatic renewal detection for all your subscriptions.",
       gradient: "from-blue-500 to-cyan-500"
     },
     {
       icon: Bell,
-      title: "Intelligent Notifications",
-      description: "Predictive alerts before renewals with personalized recommendations to optimize your spending.",
+      title: "Smart Notifications",
+      description: "Get alerts before renewals with personalized recommendations to optimize your spending.",
       gradient: "from-purple-500 to-pink-500"
     },
     {
       icon: BarChart3,
-      title: "Advanced Analytics",
-      description: "Real-time spending insights with machine learning trends and forecasting.",
+      title: "Simple Analytics",
+      description: "Clear spending insights with helpful trends and visual charts.",
       gradient: "from-green-500 to-emerald-500"
     },
     {
       icon: Shield,
-      title: "Cancellation Assistant",
-      description: "One-click cancellation with automated scripts and direct provider integration.",
+      title: "Organized Management",
+      description: "Keep all your subscriptions organized in one clean, easy-to-use dashboard.",
       gradient: "from-orange-500 to-red-500"
     },
     {
       icon: Smartphone,
-      title: "Cross-Platform Sync",
-      description: "Seamless synchronization across all devices with offline capability and real-time updates.",
+      title: "Cross-Platform Access",
+      description: "Access your subscription data from any device with seamless synchronization.",
       gradient: "from-indigo-500 to-blue-500"
     },
     {
       icon: Zap,
-      title: "Lightning Performance",
-      description: "Built with cutting-edge technology for instant loading and smooth interactions.",
+      title: "Fast & Simple",
+      description: "Built for speed and simplicity with instant loading and smooth interactions.",
       gradient: "from-yellow-500 to-orange-500"
     }
   ];
@@ -83,7 +83,7 @@ const Landing = () => {
       name: "Sarah Chen",
       role: "Product Manager",
       company: "TechCorp",
-      content: "SubSimplify's AI insights helped me save over $2,400 annually by identifying redundant subscriptions I completely forgot about!",
+      content: "SubSimplify helped me organize all my subscriptions in one place. Finally, I know exactly what I'm paying for!",
       rating: 5,
       avatar: "SC"
     },
@@ -91,7 +91,7 @@ const Landing = () => {
       name: "Mike Rodriguez",
       role: "Freelancer",
       company: "Design Studio",
-      content: "The one-click cancellation feature is revolutionary. No more spending hours on hold or navigating confusing websites.",
+      content: "The clean interface makes it so easy to track my subscriptions. I love how organized everything looks now.",
       rating: 5,
       avatar: "MR"
     },
@@ -99,7 +99,7 @@ const Landing = () => {
       name: "Emily Watson",
       role: "Student",
       company: "University",
-      content: "As a student, every dollar counts. This app helped me optimize my streaming services and save money for textbooks.",
+      content: "Simple and effective. I can see all my streaming services and apps in one dashboard without any hassle.",
       rating: 5,
       avatar: "EW"
     }
@@ -119,7 +119,7 @@ const Landing = () => {
                 SubSimplify
               </span>
               <Badge variant="secondary" className="ml-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200">
-                Free Forever
+                Simple & Clean
               </Badge>
             </div>
             
@@ -149,18 +149,18 @@ const Landing = () => {
         <div className="text-center">
           <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-6 shadow-lg border border-blue-100">
             <Sparkles className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm font-medium text-gray-700">100% Free Subscription Management</span>
+            <span className="text-sm font-medium text-gray-700">Simple Subscription Management</span>
           </div>
           
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            Take Control of Your
+            Organize Your
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 block">
               Digital Subscriptions
             </span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Harness the power of AI to track, optimize, and cancel your recurring subscriptions. 
-            Save money effortlessly with intelligent insights and automated management - completely free, forever.
+            Keep track of all your recurring subscriptions in one clean, organized dashboard. 
+            Simple, fast, and designed to help you stay organized.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -170,7 +170,7 @@ const Landing = () => {
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
             >
               <Zap className="w-5 h-5 mr-2" />
-              Start Free Today
+              Start Organizing
             </Button>
             <Button 
               size="lg" 
@@ -185,15 +185,15 @@ const Landing = () => {
           <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>Free forever</span>
+              <span>Simple setup</span>
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>No credit card required</span>
+              <span>Clean interface</span>
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>Unlimited subscriptions</span>
+              <span>Easy to use</span>
             </div>
           </div>
         </div>
@@ -205,21 +205,21 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div className="group hover:scale-105 transition-transform duration-300">
               <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-                100%
+                Clean
               </div>
-              <div className="text-gray-600">Free platform</div>
+              <div className="text-gray-600">Interface</div>
             </div>
             <div className="group hover:scale-105 transition-transform duration-300">
               <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">2min</div>
               <div className="text-gray-600">Setup time</div>
             </div>
             <div className="group hover:scale-105 transition-transform duration-300">
-              <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">99.9%</div>
-              <div className="text-gray-600">User satisfaction</div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">Simple</div>
+              <div className="text-gray-600">To use</div>
             </div>
             <div className="group hover:scale-105 transition-transform duration-300">
-              <div className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-2">50K+</div>
-              <div className="text-gray-600">Happy users</div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-2">Fast</div>
+              <div className="text-gray-600">Performance</div>
             </div>
           </div>
         </div>
@@ -230,10 +230,10 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Powered by Advanced AI
+              Built for Simplicity
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Revolutionary features designed to automate your subscription management and maximize your savings.
+              Essential features designed to help you organize and track your subscriptions effortlessly.
             </p>
           </div>
 
@@ -262,10 +262,10 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Loved by thousands worldwide
+              Loved by users worldwide
             </h2>
             <p className="text-xl text-gray-600">
-              Join our community of smart savers
+              Join our community of organized users
             </p>
           </div>
 
@@ -302,10 +302,10 @@ const Landing = () => {
       <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Ready to simplify your subscriptions?
+            Ready to get organized?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of users who have taken control of their recurring payments with our free AI-powered platform.
+            Join users who have organized their subscriptions with our clean, simple platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -314,7 +314,7 @@ const Landing = () => {
               className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
             >
               <Zap className="w-5 h-5 mr-2" />
-              Get Started for Free
+              Start Organizing
             </Button>
             <Button 
               size="lg" 
@@ -340,7 +340,7 @@ const Landing = () => {
                 <span className="text-xl font-bold text-white">SubSimplify</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Free subscription management platform helping users save money and take control of their recurring payments.
+                Simple subscription management platform helping users organize and track their recurring payments.
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
@@ -404,10 +404,10 @@ const Landing = () => {
 
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-gray-400 mb-4 md:mb-0">
-              © 2024 SubSimplify. All rights reserved. Built with ❤️ for smart savers.
+              © 2024 SubSimplify. All rights reserved. Built with ❤️ for organized users.
             </div>
             <div className="flex items-center space-x-4 text-sm text-gray-400">
-              <span>100% Free</span>
+              <span>Simple & Clean</span>
               <div className="w-px h-4 bg-gray-600"></div>
               <span>Secure & Private</span>
               <div className="w-px h-4 bg-gray-600"></div>
