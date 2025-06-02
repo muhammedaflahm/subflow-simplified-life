@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -134,7 +135,7 @@ const Landing = () => {
                 </Button>
               ) : (
                 <>
-                  <Button variant="ghost" onClick={handleSignIn} className="hover:bg-blue-50">
+                  <Button variant="ghost" onClick={handleSignIn} className="hover:bg-blue-50 text-gray-700 hover:text-gray-900">
                     Sign In
                   </Button>
                   <Button onClick={handleGetStarted} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
